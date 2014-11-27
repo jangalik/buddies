@@ -116,7 +116,7 @@ time {
 footer {
 	text-align: center;
 }
-.paging {
+#paging {
 	padding: 5px;
 }
 #previous-button {
