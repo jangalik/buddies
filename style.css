@@ -116,8 +116,11 @@ time {
 footer {
 	text-align: center;
 }
-#paging {
+#navigation {
 	padding: 5px;
+}
+#paging {
+	display: inline-block;
 }
 #previous-button {
 	border-radius: 20px 0px 0px 20px;

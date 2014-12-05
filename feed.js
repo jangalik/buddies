@@ -1,23 +1,5 @@
-var pageNum = 0;
-var articleCount;
 
-var calculatePage = function(num) {
-    pageNum = pageNum + num;
-    if (pageNum < 0){
-        pageNum = 0;
-    }
-    if (pageNum === 0) {
-        document.getElementById('previous-button').style.display = "none";
-    } else {
-        document.getElementById('previous-button').style.display = "inline-block";
-    }
 
-    if (articleCount-(12*pageNum) <= 12) {
-        document.getElementById('next-button').style.display = "none";
-    } else {
-        document.getElementById('next-button').style.display = "inline-block";
-    }  
-}
 
 function load(url, callback) {
 
@@ -47,19 +29,24 @@ xhr.send('');
     var Articles = {
         images : ["./img/0.jpg", "./img/1.jpg", "./img/2.jpg", "./img/3.jpg", "./img/4.jpg", "./img/5.jpg", "./img/6.jpg", "./img/7.jpg", "./img/8.jpg", "./img/9.jpg"],
         data : [],
+        pageNum: 0,
+        itemsPerPage: 12,
+        articleCount: 0,
+        articles: 0,
         setPageData: function (data) {
             var ctx = Articles,
-            wrapper = document.getElementById('videolist'),
-            html = document.createDocumentFragment(),
-            articles = data,
-            markup = {},
-            i = pageNum*12,
-            image = "",
-            imgIndex = "";
-            Articles.data = data;
-            articleCount = articles.length;
-            //console.log(articles.length);
-            while (i < (pageNum*12)+12) { //articles.length
+                wrapper = document.getElementById('videolist'),
+                html = document.createDocumentFragment(),
+                articles = data,
+                markup = {},
+                i = Articles.pageNum*12,
+                image = "",
+                imgIndex = "";
+                Articles.data = data;
+                Articles.articleCount = articles.length;
+                //console.log(articles.length);
+                // (Articles.pageNum*Articles.itemsPerPage)+Articles.itemsPerPage
+            while (i < (Articles.pageNum+1)*Articles.itemsPerPage && i < Articles.articleCount) { //articles.length
                 imgIndex = parseInt(articles[i].image);
                 
                 if (isNaN(imgIndex)) {
@@ -72,7 +59,9 @@ xhr.send('');
                 i += 1;
 
             }
+            wrapper.innerHTML="";
             wrapper.appendChild(html);
+            Articles.renderPagination();
         },
         formatDate : function (unixtimestamp) {
             var date = new Date(unixtimestamp*1);
@@ -81,30 +70,31 @@ xhr.send('');
         },
         toHtml: function (title, img, categories, timestamp) {
             var ctx = Articles,
-            desc = "",
-            element = document.createDocumentFragment(),
-            li = document.createElement("li"),
-            article = document.createElement("article"),
-            div = document.createElement("div"),
-            a = document.createElement("a"),
-            div2 = document.createElement("div"),
-            div3 = document.createElement("div"),
-            img2 = document.createElement("img"),
-            div4 = document.createElement("div"),
-            h2 = document.createElement("h2"),
-            a2 = document.createElement("a"),
-            time = document.createElement("time"),
-            j = 0;
+                desc = "",
+                element = document.createDocumentFragment(),
+                li = document.createElement("li"),
+                article = document.createElement("article"),
+                div = document.createElement("div"),
+                a = document.createElement("a"),
+                div2 = document.createElement("div"),
+                div3 = document.createElement("div"),
+                img2 = document.createElement("img"),
+                div4 = document.createElement("div"),
+                h2 = document.createElement("h2"),
+                a2 = document.createElement("a"),
+                time = document.createElement("time"),
+                titleText = document.createTextNode(title),
+                timestampText = document.createTextNode(ctx.formatDate(timestamp)),
+                i = 0,
+                categoriesText = "";
 
-            
-            while (j < categories.length) {
-                desc = desc + categories[j] + " ";
-                j += 1;
+
+            while (i < categories.length) {
+                desc = desc + categories[i] + " ";
+                i += 1;
             }
-            var titleText = document.createTextNode(title);
-            var categoriesText = document.createTextNode(desc);
-            var timestampText = document.createTextNode(ctx.formatDate(timestamp));
-            
+            categoriesText = document.createTextNode(desc);
+
             div.className = "container";
             a.href = "";
             div2.className = "overlay";
@@ -115,49 +105,108 @@ xhr.send('');
             div4.className = "description";
             a2.href = "";
             time.datetime = "2008-02-14 20:00";
-                // console.log(ctx.formatDate(timestamp));
+            // console.log(ctx.formatDate(timestamp));
 
-                li.appendChild(article);
-                article.appendChild(div);
-                article.appendChild(div4);
-                div.appendChild(a);
-                a.appendChild(div2);
-                a.appendChild(div3);
-                a.appendChild(img2);
-                div4.appendChild(h2);
-                div4.appendChild(time);
-                h2.appendChild(a2);
-                element.appendChild(li);
+            li.appendChild(article);
+            article.appendChild(div);
+            article.appendChild(div4);
+            div.appendChild(a);
+            a.appendChild(div2);
+            a.appendChild(div3);
+            a.appendChild(img2);
+            div4.appendChild(h2);
+            div4.appendChild(time);
+            h2.appendChild(a2);
+            element.appendChild(li);
 
-                div2.appendChild(categoriesText);
-                a2.appendChild(titleText);
-                time.appendChild(timestampText);
+            div2.appendChild(categoriesText);
+            a2.appendChild(titleText);
+            time.appendChild(timestampText);
 
-                return element;
+            return element;
 
-            }, 
-            calculatePage: function(num) {
-                pageNum = pageNum + num;
-                if (pageNum < 0){
-                    pageNum = 0;
+        },
+            renderPagination : function () {
+                //tu vyrenderuj vsetky acka na vsetky stranky paginacie
+                var wrapper = document.getElementById('paging'),
+                    html = document.createDocumentFragment(),
+                    a = "",
+                    pages = Math.ceil(Articles.articleCount/Articles.itemsPerPage),
+                    navHtml = "";
+                if (Articles.pageNum === 0) {
+                    document.getElementById('next-button').style.display = "none";
+                } else {
+                    document.getElementById('previous-button').style.display = "inline-block";
                 }
-                if (pageNum === 0) {
+                for (var i = 0; i < pages; i++) {
+                    a = document.createElement("a");
+                    a.className = "paging-button";
+                    a.setAttribute("data-page", i);
+                    a.innerHTML = i+1;
+                    // navHtml = "<a class=\"paging-button\" data-page=\""+i+"\">"+i+"</a>";
+                    html.appendChild(a);
+                }
+                if (Articles.articleCount-(Articles.itemsPerPage*Articles.pageNum) <= Articles.itemsPerPage + 1) {
+                    document.getElementById('next-button').style.display = "none";
+                } else {
+                    document.getElementById('next-button').style.display = "inline-block";
+                }
+                console.log(html);
+                wrapper.innerHTML="";
+                wrapper.appendChild(html);
+                Articles.bindPagination();
+            },
+            nextPage: function() {
+                Articles.calculatePage(1);
+            },
+            previousPage: function() {
+                Articles.calculatePage(-1);
+            },
+            switchPage: function(element, scope) {
+                var clickedPage = element.getAttribute('data-page');
+                scope.calculatePage(clickedPage-scope.pageNum);
+                // console.log(element);
+                // console.log(element.getAttribute('data-page'));
+            },
+            bindPagination : function () {
+                var pageButtons = document.getElementsByClassName('paging-button'),
+                    i = 0,
+                    size = pageButtons.length;
+                while (i < size) {
+                    pageButtons[i].addEventListener('click', function(e) {
+                        var targetElement = e.target || e.srcElement;
+                        Articles.switchPage(targetElement, Articles);            
+                    }); 
+                    i += 1;
+                }
+            },
+            calculatePage: function(num) {
+            
+
+                console.log(num);
+                console.log(Articles.pageNum);
+                Articles.pageNum = Articles.pageNum + num;
+                if (Articles.pageNum < 0){
+                    Articles.pageNum = 0;
+                }
+                if (Articles.pageNum === 0) {
                     document.getElementById('previous-button').style.display = "none";
                 } else {
                     document.getElementById('previous-button').style.display = "inline-block";
                 }
 
-                if (articleCount-(12*pageNum) <= 12) {
+                if (Articles.articleCount-(Articles.itemsPerPage*Articles.pageNum) <= Articles.itemsPerPage + 1) {
                     document.getElementById('next-button').style.display = "none";
                 } else {
                     document.getElementById('next-button').style.display = "inline-block";
-                }  
+                }
+
+                Articles.setPageData(Articles.data);
             }    
         }
 
-
         load('http://academy.tutoky.com/api/json.php', Articles.setPageData);
+        document.getElementById("next-button").addEventListener("click", Articles.nextPage);
+        document.getElementById("previous-button").addEventListener("click", Articles.previousPage);
+        Articles.renderPagination();
     }(window,document));
-
-document.getElementById("next-button").addEventListener("click", Articles.calculatePage(1));
-document.getElementById("previous-button").addEventListener("click", Articles.calculatePage(-1));
