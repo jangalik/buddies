@@ -122,7 +122,7 @@ footer {
 #paging {
 	display: inline-block;
 }
-#previous-button {
+.previous-button {
 	border-radius: 20px 0px 0px 20px;
 	font-family: Arial;
 	color: #ffffff;
@@ -133,17 +133,39 @@ footer {
 	display: inline-block;
 	width: 120px;
 }
+.previous-button-passive {
+	border-radius: 20px 0px 0px 20px;
+	font-family: Arial;
+	color: #ffffff;
+	font-size: 20px;
+	padding: 5px;
+	background: rgba(52,152,219,0.6);
+	text-decoration: none;
+	display: inline-block;
+	width: 120px;
+}
 #previous-button:hover {
  	background: #3cb0fd;
  	text-decoration: none;
 }
-#next-button {
+.next-button {
 	border-radius: 0px 20px 20px 0px;
 	font-family: Arial;
 	color: #ffffff;
 	font-size: 20px;
 	padding: 5px;
 	background: #3498db;
+	text-decoration: none;
+	display: inline-block;
+	width: 120px;
+}
+.next-button-passive {
+	border-radius: 0px 20px 20px 0px;
+	font-family: Arial;
+	color: #ffffff;
+	font-size: 20px;
+	padding: 5px;
+	background: rgba(52,152,219,0.6);
 	text-decoration: none;
 	display: inline-block;
 	width: 120px;

@@ -127,31 +127,40 @@ xhr.send('');
 
         },
             renderPagination : function () {
-                //tu vyrenderuj vsetky acka na vsetky stranky paginacie
                 var wrapper = document.getElementById('paging'),
                     html = document.createDocumentFragment(),
                     a = "",
                     pages = Math.ceil(Articles.articleCount/Articles.itemsPerPage),
                     navHtml = "";
                 if (Articles.pageNum === 0) {
-                    document.getElementById('next-button').style.display = "none";
+                    document.getElementById('previous-button').className = "previous-button-passive";
                 } else {
-                    document.getElementById('previous-button').style.display = "inline-block";
+                    document.getElementById('previous-button').className = "previous-button";
                 }
                 for (var i = 0; i < pages; i++) {
-                    a = document.createElement("a");
-                    a.className = "paging-button";
-                    a.setAttribute("data-page", i);
-                    a.innerHTML = i+1;
-                    // navHtml = "<a class=\"paging-button\" data-page=\""+i+"\">"+i+"</a>";
-                    html.appendChild(a);
+                    console.log("Articles.pageNum: "+Articles.pageNum),
+                    console.log("i: "+i),
+                    console.log("pages: "+pages)
+                    if (2 >= Math.abs(Articles.pageNum-i) && i < pages-1) {
+                        if (a.innerHTML === "..."){} else {
+                        a = document.createElement("span");
+                        a.innerHTML = "...";
+                        html.appendChild(a);
+                        }
+                    } else {
+                        a = document.createElement("a");
+                        a.className = "paging-button";
+                        a.setAttribute("data-page", i);
+                        a.innerHTML = i+1;
+                        html.appendChild(a);
+                    }
+                    //ak je aktualna stranka vacsia ako 3 a mensia ako pocet stranok -1 tak miesto <a> rob <span>
                 }
                 if (Articles.articleCount-(Articles.itemsPerPage*Articles.pageNum) <= Articles.itemsPerPage + 1) {
-                    document.getElementById('next-button').style.display = "none";
+                    document.getElementById('next-button').className = "next-button-passive";
                 } else {
-                    document.getElementById('next-button').style.display = "inline-block";
+                    document.getElementById('next-button').className = "next-button";
                 }
-                console.log(html);
                 wrapper.innerHTML="";
                 wrapper.appendChild(html);
                 Articles.bindPagination();
@@ -165,8 +174,6 @@ xhr.send('');
             switchPage: function(element, scope) {
                 var clickedPage = element.getAttribute('data-page');
                 scope.calculatePage(clickedPage-scope.pageNum);
-                // console.log(element);
-                // console.log(element.getAttribute('data-page'));
             },
             bindPagination : function () {
                 var pageButtons = document.getElementsByClassName('paging-button'),
@@ -186,27 +193,29 @@ xhr.send('');
                 console.log(num);
                 console.log(Articles.pageNum);
                 Articles.pageNum = Articles.pageNum + num;
-                if (Articles.pageNum < 0){
-                    Articles.pageNum = 0;
-                }
-                if (Articles.pageNum === 0) {
-                    document.getElementById('previous-button').style.display = "none";
-                } else {
-                    document.getElementById('previous-button').style.display = "inline-block";
-                }
+                // if (Articles.pageNum < 0){
+                //     Articles.pageNum = 0;
+                // }
+                // if (Articles.pageNum === 0) {
+                //     document.getElementById('previous-button').style.display = "none";
+                // } else {
+                //     document.getElementById('previous-button').style.display = "inline-block";
+                // }
 
-                if (Articles.articleCount-(Articles.itemsPerPage*Articles.pageNum) <= Articles.itemsPerPage + 1) {
-                    document.getElementById('next-button').style.display = "none";
-                } else {
-                    document.getElementById('next-button').style.display = "inline-block";
-                }
+                // if (Articles.articleCount-(Articles.itemsPerPage*Articles.pageNum) <= Articles.itemsPerPage + 1) {
+                //     document.getElementById('next-button').style.display = "none";
+                // } else {
+                //     document.getElementById('next-button').style.display = "inline-block";
+                // }
 
                 Articles.setPageData(Articles.data);
             }    
         }
 
         load('http://academy.tutoky.com/api/json.php', Articles.setPageData);
-        document.getElementById("next-button").addEventListener("click", Articles.nextPage);
-        document.getElementById("previous-button").addEventListener("click", Articles.previousPage);
+        var next = document.getElementsByClassName("next-button")[0];
+        next.addEventListener("click", Articles.nextPage);
+        var prev = document.getElementsByClassName("previous-button")[0];
+        prev.addEventListener("click", Articles.previousPage);
         Articles.renderPagination();
     }(window,document));
